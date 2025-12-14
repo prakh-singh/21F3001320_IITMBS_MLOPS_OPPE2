@@ -13,31 +13,31 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Decode GCP service account key
-      run: |
-        echo "${{ secrets.GCP_SA_KEY_B64 }}" | base64 --decode > key.json
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY_BASE64 }}
 
     - name: Setup gcloud
       uses: google-github-actions/setup-gcloud@v2
       with:
-        project_id: pacific-decoder-473005-h5
-        service_account_key: key.json
-        export_default_credentials: true
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Configure Docker authentication
       run: |
-        gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
+        gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
     - name: Build Docker image
       run: |
-        docker build -t asia-south1-docker.pkg.dev/pacific-decoder-473005-h5/heart-disease-repo/heart-disease-api:latest .
+        docker build -t ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/heart-disease-repo/heart-disease-api:latest .
 
     - name: Push Docker image
       run: |
-        docker push asia-south1-docker.pkg.dev/pacific-decoder-473005-h5/heart-disease-repo/heart-disease-api:latest
+        docker push ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/heart-disease-repo/heart-disease-api:latest
 
     - name: Deploy to GKE
       run: |
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
         kubectl apply -f k8s/hpa.yaml
+
