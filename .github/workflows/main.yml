@@ -44,7 +44,7 @@ jobs:
     # 7️⃣ Configure kubectl context for GKE  ✅ THIS FIXES localhost:8080 ERROR
     - name: Configure kubectl for GKE
       run: |
-        gcloud container clusters get-credentials <YOUR_CLUSTER_NAME> \
+        gcloud container clusters get-credentials oppe2-cluster \
           --region ${{ secrets.GCP_REGION }} \
           --project ${{ secrets.GCP_PROJECT_ID }}
 
