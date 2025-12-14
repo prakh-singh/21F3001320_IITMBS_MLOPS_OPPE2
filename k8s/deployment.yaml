@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: heart-disease-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: heart-disease
+  template:
+    metadata:
+      labels:
+        app: heart-disease
+    spec:
+      containers:
+      - name: heart-disease
+        image: asia-south1-docker.pkg.dev/pacific-decoder-473005-h5/heart-disease-repo/heart-disease-api:latest
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 20
